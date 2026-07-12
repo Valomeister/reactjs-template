@@ -1,0 +1,40 @@
+.chat-list__item {
+  /* padding: 12px 16px; */
+}
+
+
+.chat-list__title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+
+.chat-list__message {
+  /* margin-top: 4px; */
+
+  color: var(--tg-theme-subtitle-text-color);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.chat-list__money {
+  display: flex;
+  gap: 8px;
+
+  /* margin-top: 8px; */
+
+  font-size: 14px;
+}
+
+
+.chat-list__income {
+  color: #3fcc1c;
+}
+
+
+.chat-list__expense {
+  color: #e53935;
+}
