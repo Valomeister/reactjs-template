@@ -1,22 +1,24 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, useRef} from "react";
 
 import { Cell, List } from "@telegram-apps/telegram-ui";
 
 import { retrieveLaunchParams, retrieveRawInitData } from "@tma.js/sdk-react";
 
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { Page } from "@/components/Page";
 
 import { Chat } from "@/components/Chat/Chat";
 
-import { fetchChat } from "@/api/chats";
+import { connectChatSocket } from "@/api/chatSocket";
 
 import type { Order, Message } from "@/components/Chat/Chat.tsx";
 
 import { ChatInput } from "@/components/ChatInput/ChatInput";
 
-import { sendMessage } from "@/api/chats";
+import { markMessageRead, sendMessage } from "@/api/chats";
+
+import { backButton  } from "@tma.js/sdk-react"; 
 
 
 
@@ -34,19 +36,95 @@ export const ChatPage: FC = () => {
 
     const [loading, setLoading] = useState(true);
 
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!backButton) return;
+
+        backButton.show();
+
+        const handleBack = () => {
+            console.log("Клик сработал через типизированный SDK! Единичка:", 1);
+            navigate('/', { replace: true });
+        };
+
+        const removeListener = backButton.onClick(handleBack);
+
+        return () => {
+            removeListener();
+            backButton.hide();
+        };
+    }, [navigate, id]);
+
 
     useEffect(() => {
 
         const initData = retrieveRawInitData();
 
-        if (!initData || !id) {
+        if (!initData || !id)
             return;
-        }
 
-        fetchChat(initData, id)
-            .then(setChat)
-            .catch(console.error)
-            .finally(() => setLoading(false));
+        const socket = connectChatSocket(
+            initData,
+            id,
+            (event) => {
+
+                switch (event.type) {
+
+                    case "init":
+
+                        setChat({
+                            order: event.order,
+                            messages: event.messages,
+                        });
+
+                        setLoading(false);
+
+                        break;
+
+                    case "message":
+
+                        setChat(prev => {
+
+                            if (!prev)
+                                return prev;
+
+                            return {
+                                ...prev,
+                                messages: [
+                                    ...prev.messages,
+                                    event.message,
+                                ],
+                            };
+
+                        });
+
+                        break;
+
+                    case "message_read":
+                        setChat(prev => {
+                            if (!prev)
+                                return prev;
+
+                            return {
+                                ...prev,
+                                messages: prev.messages.map(message =>
+                                    message.id === event.message_id
+                                        ? {
+                                            ...message,
+                                            read_at: event.read_at,
+                                        }
+                                        : message
+                                ),
+                            };
+                        });
+
+                        break;
+                }
+            },
+        );
+
+        return () => socket.close();
 
     }, [id]);
 
@@ -57,44 +135,33 @@ export const ChatPage: FC = () => {
             ?.user
             ?.id ?? 0;
 
+    const handleRead = async (
+        messageId:number
+    ) => {
 
-    const handleSend = async (text: string) => {
-        const initData = retrieveRawInitData();
-
-        if (!initData || !id) {
+        if (!id)
             return;
-        }
 
-        try {
-            const message = await sendMessage(
-                initData,
-                id,
-                text
-            );
-            setChat((prev) => {
-                if (!prev) {
-                    return prev;
-                }
+        const initData =
+            retrieveRawInitData();
 
-                return {
-                    ...prev,
-                    messages: [
-                        ...prev.messages,
-                        message,
-                    ],
-                };
-            });
-        } catch (error) {
-            console.error("Failed to send message:", error);
-        }
+        if (!initData)
+            return;
+
+        await markMessageRead(
+            initData,
+            id,
+            messageId
+        );
     };
+
 
     return (
         <Page>
 
             {
                 loading
-                    ? <Cell>Loading...</Cell>
+                    ? <div className='loading'>loading...</div>
                     :
                     chat &&
                     <>
@@ -102,9 +169,25 @@ export const ChatPage: FC = () => {
                             myId={myId}
                             messages={chat.messages}
                             order={chat.order}
+                            onRead={handleRead}
                         />
                         <ChatInput
-                            onSend={handleSend}
+                            onSend={async (text) => {
+
+                                if (!id)
+                                    return;
+
+                                const initData = retrieveRawInitData();
+
+                                if (!initData)
+                                    return;
+
+                                await sendMessage(
+                                    initData,
+                                    id,
+                                    text,
+                                );
+                            }}
                         />
                     </>
             }

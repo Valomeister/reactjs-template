@@ -11,6 +11,9 @@ import { ChatList } from '@/components/ChatList/ChatList.tsx';
 import type { Chat } from '@/components/ChatList/ChatList.tsx';
 import { fetchChats } from '@/api/chats.ts';
 
+
+import '@/general.css';
+
 export const IndexPage: FC = () => {
   const [chats, setChats] = useState<Chat[]>([]);
 
@@ -43,14 +46,14 @@ export const IndexPage: FC = () => {
 
   return (
     <Page back={false}>
-      <List>
+      <div>
         {
           loading
-            ? <Cell>Loading...</Cell>
+            ? <div className='loading'>loading...</div>
             : <ChatList chats={chats}/>
         }
         
-      </List>
+      </div>
     </Page>
   );
 };

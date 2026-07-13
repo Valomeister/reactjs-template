@@ -1,0 +1,120 @@
+div, span {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Roboto", "Apple Color Emoji", "Helvetica Neue", sans-serif;
+}
+
+/* SYSTEM MESSAGE */
+
+.bubble__system_message {
+    color: #fff;
+    text-align: center;
+    margin: 0 auto;
+
+    padding: 6px 16px;
+    border-radius: 12px;
+
+    background: rgba(0, 0, 0, 0.25);
+    z-index: 10;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+
+
+/* REGULAR MESSAGE */
+
+.bubble__message {
+    display: flex;
+    padding: 6px 12px;
+    border: none;
+    outline: none;
+}
+
+.bubble__message:nth-child(2) {
+    margin-top: 46px;
+}
+
+.bubble__message--mine {
+    justify-content: flex-end;
+}
+
+.bubble__message--other {
+    justify-content: flex-start;
+}
+
+.bubble__bubble {
+    position: relative;
+
+    min-width: 100px;
+    max-width: 75%;
+    padding: 8px 12px;
+
+    border-radius: 12px;
+
+    background: #17212b;
+    word-break: break-word;
+    color: #fff;
+
+}
+
+.bubble__bubble_body {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+
+}
+
+.bubble__message--mine .bubble__bubble {
+    background: #5288c1;
+}
+
+.bubble__author {
+    /* margin-bottom: 3px; */
+
+    font-size: 13px;
+    font-weight: 700;
+
+    color: #d3e8ff;
+}
+
+.bubble__author.bubble__manager {
+    color: rgb(199, 195, 255);
+}
+
+.bubble__author.bubble__worker {
+    color: rgb(195, 255, 235);
+}
+
+.bubble__author.bubble__customer {
+    color: rgb(244, 255, 195);
+}
+
+.bubble__text {
+    white-space: pre-wrap;
+}
+
+.bubble__spaceholder {
+    visibility: hidden;
+}
+
+.bubble__msg_info {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 3px;
+    position: absolute;
+    bottom: 3px;
+    right: 8px;
+
+
+    font-size: 12px;
+    font-weight: 600;
+    opacity: .6;
+
+    white-space: nowrap;
+}
+
+.bubble__status {
+    height: 8px;
+    margin-top: -2px;
+}

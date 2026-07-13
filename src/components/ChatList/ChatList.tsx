@@ -43,7 +43,7 @@ const Money = ({
 
 export const ChatList: FC<ChatListProps> = ({ chats }) => {
   return (
-    <Section>
+    <Section className={e("section")}>
       {chats.map((chat) => {
 
         const hasPrice = chat.price !== null;

@@ -65,10 +65,10 @@ if (import.meta.env.DEV) {
           ['auth_date', (new Date().getTime() / 1000 | 0).toString()],
           ['hash', 'some-hash'],
           ['signature', 'some-signature'],
-          ['user', JSON.stringify({ id: 1, first_name: 'Vladislav' })],
+          ['user', JSON.stringify({ id: 2, first_name: 'Vladislav' })],
         ]).toString()],
         ['tgWebAppVersion', '8.4'],
-        ['tgWebAppPlatform', 'tdesktop'],
+        ['tgWebAppPlatform', 'webk'],
       ]),
     });
 

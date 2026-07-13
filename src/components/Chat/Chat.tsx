@@ -1,10 +1,12 @@
-import type { FC } from "react";
+import type { FC  } from "react";
+import { useEffect, useRef  } from "react";
 
 import { Section, List } from "@telegram-apps/telegram-ui";
 
 import { bem } from "@/css/bem";
 
 import "./Chat.css";
+import { MessageBubble } from "../MessageBubble/MessageBubble";
 
 
 export interface Order {
@@ -23,6 +25,7 @@ export interface Message {
   text: string;
   sent_at: string;
   read_at: string | null;
+  type: string;
 }
 
 const [, e] = bem("chat")
@@ -31,32 +34,20 @@ interface Props {
     myId: number;
     messages: Message[];
     order: Order;
+    onRead(
+        messageId:number
+    ):void;
 }
 
-const getSenderRole = (tgId: number, order: Order) => {
-    if (tgId === order.manager_tg_id) {
-        return "manager";
-    }
+export const Chat: FC<Props> = ({ myId, messages, order, onRead }) => {
 
-    if (tgId === order.worker_tg_id) {
-        return "worker";
-    }
+    const bottomRef = useRef<HTMLDivElement>(null);
 
-    if (tgId === order.customer_tg_id) {
-        return "customer";
-    }
-
-    return "unknown";
-};
-
-const rolesRu: Record<string, string> = {
-  manager: "Менеджер",
-  worker: "Исполнитель",
-  customer: "Заказчик",
-  unknown: "Неизвестный",
-};
-
-export const Chat: FC<Props> = ({ myId, messages, order }) => {
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({
+            behavior: "auto",
+        });
+    }, [messages]);
 
     return (
         <div className="chat">
@@ -65,38 +56,21 @@ export const Chat: FC<Props> = ({ myId, messages, order }) => {
                 {order.title}
             </div>
         </div>
-        {messages.map((message) => (
-            <div
-            key={message.id}
-            className={
-                e(
-                "message",
-                message.sender_tg_id === myId ? "mine" : "other"
-                )
-            }
-            >
-                <div className={e("bubble")}>
-                    <div className={e("bubble_header")}>
-                        <div className={`${e("author")} ${e(getSenderRole(message.sender_tg_id, order))}`}>
-                            {rolesRu[getSenderRole(message.sender_tg_id, order)]}
-                        </div>
-                    </div>
-                    <div className={e("bubble_body")}>
-                        <span>
-                            {message.text}
-                            <img className={e("spaceholder")} src="https://placehold.co/36x10" alt="" />
-                        </span>
+        {messages.map(message => (
 
-                        <span className={e("time")}>
-                            {new Date(message.sent_at).toLocaleTimeString("ru-RU", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            })}
-                        </span>
-                    </div>
-                </div>
-            </div>
+            <MessageBubble
+                key={message.id}
+                message={message}
+                order={order}
+                myId={myId}
+                orderId={order.id}
+                onRead={onRead}
+            />
+
         ))}
+
+        <div ref={bottomRef} />
+        
         </div>
     );
 };
